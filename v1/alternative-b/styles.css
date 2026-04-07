@@ -1,0 +1,211 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    background: #0a0a1a;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+    font-family: 'Courier New', monospace;
+    color: #00ff88;
+}
+
+#game-container {
+    position: relative;
+    width: 800px;
+    height: 500px;
+}
+
+#game-canvas {
+    width: 800px;
+    height: 500px;
+    image-rendering: pixelated;
+    display: block;
+    border: 1px solid #ff00ff33;
+    box-shadow: 0 0 20px #ff00ff22, inset 0 0 20px #00000088;
+}
+
+#hud {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+}
+
+#hud-top-right {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+}
+
+#minimap-canvas {
+    width: 150px;
+    height: 150px;
+    border: 1px solid #ff00ff44;
+    background: #0a0a1a99;
+    image-rendering: pixelated;
+    box-shadow: 0 0 8px #ff00ff22;
+}
+
+#message-bar {
+    position: absolute;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    min-height: 20px;
+}
+
+#message-text {
+    font-size: 13px;
+    color: #00ffff;
+    text-shadow: 0 0 8px #00ffff, 0 0 16px #00ffff44;
+    transition: opacity 0.5s;
+}
+
+#hud-bottom {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 14px;
+    background: linear-gradient(transparent, #0a0a1acc);
+}
+
+.hud-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.hud-label {
+    font-size: 10px;
+    color: #ff00ff88;
+    text-shadow: 0 0 4px #ff00ff44;
+}
+
+.bar-outer {
+    width: 70px;
+    height: 8px;
+    background: #1a1a2e;
+    border: 1px solid #ff00ff33;
+}
+
+.bar-inner {
+    height: 100%;
+    transition: width 0.3s;
+}
+
+.bar-inner.health {
+    background: linear-gradient(90deg, #00ff88, #00ff44);
+    box-shadow: 0 0 4px #00ff8844;
+}
+
+.bar-inner.health.warning {
+    background: linear-gradient(90deg, #ffff00, #ff8800);
+    box-shadow: 0 0 4px #ffff0044;
+}
+
+.bar-inner.health.critical {
+    background: linear-gradient(90deg, #ff0044, #ff0000);
+    box-shadow: 0 0 4px #ff004444;
+    animation: pulse-bar 0.5s infinite;
+}
+
+.bar-inner.shield {
+    background: linear-gradient(90deg, #00ffff, #0088ff);
+    box-shadow: 0 0 4px #00ffff44;
+}
+
+.hud-value {
+    font-size: 12px;
+    min-width: 24px;
+}
+
+.hud-weapon {
+    font-size: 14px;
+    color: #ffff00;
+    text-shadow: 0 0 6px #ffff0066;
+    font-weight: bold;
+}
+
+.hud-ammo {
+    font-size: 13px;
+    color: #ffff00cc;
+}
+
+.hud-stat {
+    font-size: 11px;
+    color: #00ff8888;
+    margin-left: 8px;
+}
+
+#overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #0a0a1aee;
+    z-index: 10;
+}
+
+#overlay.hidden { display: none; }
+
+#overlay-title {
+    font-size: 52px;
+    color: #ff00ff;
+    text-shadow: 0 0 30px #ff00ff, 0 0 60px #ff00ff66, 0 0 90px #ff00ff33;
+    margin-bottom: 4px;
+    letter-spacing: 6px;
+}
+
+#overlay-subtitle {
+    font-size: 18px;
+    color: #00ffff;
+    text-shadow: 0 0 10px #00ffff;
+    margin-bottom: 30px;
+    letter-spacing: 8px;
+}
+
+#start-btn {
+    font-family: 'Courier New', monospace;
+    font-size: 18px;
+    color: #00ff88;
+    background: transparent;
+    border: 2px solid #00ff88;
+    padding: 12px 36px;
+    cursor: pointer;
+    pointer-events: all;
+    text-shadow: 0 0 8px #00ff88;
+    box-shadow: 0 0 15px #00ff8833;
+    letter-spacing: 3px;
+    transition: all 0.2s;
+}
+
+#start-btn:hover {
+    background: #00ff8815;
+    box-shadow: 0 0 25px #00ff8855;
+    transform: scale(1.05);
+}
+
+#damage-flash {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    z-index: 5;
+    opacity: 0;
+    transition: opacity 0.15s;
+}
+
+#damage-flash.active {
+    background: radial-gradient(ellipse at center, transparent 30%, #ff004466 100%);
+    opacity: 1;
+}
+
+@keyframes pulse-bar {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shootout — Neon Maze</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="game-canvas"></canvas>
+        <div id="hud">
+            <div id="hud-top-right">
+                <canvas id="minimap-canvas"></canvas>
+            </div>
+            <div id="message-bar">
+                <span id="message-text"></span>
+            </div>
+            <div id="hud-bottom">
+                <div id="shield-display" class="hud-item">
+                    <span class="hud-label">SHD</span>
+                    <div class="bar-outer"><div id="shield-bar" class="bar-inner shield"></div></div>
+                    <span id="shield-text" class="hud-value">0</span>
+                </div>
+                <div id="health-display" class="hud-item">
+                    <span class="hud-label">HP</span>
+                    <div class="bar-outer"><div id="health-bar" class="bar-inner health"></div></div>
+                    <span id="health-text" class="hud-value">100</span>
+                </div>
+                <div id="weapon-display" class="hud-item">
+                    <span id="weapon-name" class="hud-weapon">PISTOL</span>
+                    <span id="ammo-display" class="hud-ammo"><span id="ammo-clip">15</span>/<span id="ammo-reserve">∞</span></span>
+                </div>
+                <div id="stats-display" class="hud-item">
+                    <span class="hud-stat">K:<span id="kill-count">0</span></span>
+                    <span class="hud-stat">R:<span id="room-count">0/0</span></span>
+                </div>
+            </div>
+        </div>
+        <div id="overlay">
+            <h1 id="overlay-title">NEON MAZE</h1>
+            <p id="overlay-subtitle">SHOOTOUT</p>
+            <button id="start-btn">ENTER THE MAZE</button>
+        </div>
+        <div id="damage-flash"></div>
+    </div>
+    <script src="js/config.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/obstacles.js"></script>
+    <script src="js/memory.js"></script>
+    <script src="js/sprites.js"></script>
+    <script src="js/particles.js"></script>
+    <script src="js/weapons.js"></script>
+    <script src="js/pickups.js"></script>
+    <script src="js/monsters.js"></script>
+    <script src="js/monster-ai.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/player-ai.js"></script>
+    <script src="js/raycaster.js"></script>
+    <script src="js/hud.js"></script>
+    <script src="js/input.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
