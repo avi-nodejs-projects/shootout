@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shootout — Classic Dungeon Crawler</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="game-canvas"></canvas>
+        <div id="hud">
+            <div id="hud-top">
+                <canvas id="minimap-canvas"></canvas>
+                <div id="messages"></div>
+            </div>
+            <div id="hud-bottom">
+                <div id="health-display">
+                    <span class="label">HP</span>
+                    <div class="bar-container"><div id="health-bar" class="bar"></div></div>
+                    <span id="health-text">100</span>
+                </div>
+                <div id="weapon-display">
+                    <span id="weapon-name">Pistol</span>
+                </div>
+                <div id="ammo-display">
+                    <span id="ammo-clip">12</span>/<span id="ammo-reserve">∞</span>
+                </div>
+                <div id="score-display">
+                    <span class="label">Kills:</span> <span id="kill-count">0</span>
+                    <span class="label">Rooms:</span> <span id="room-count">0</span>
+                </div>
+            </div>
+        </div>
+        <div id="overlay" class="hidden">
+            <h1 id="overlay-title">SHOOTOUT</h1>
+            <p id="overlay-subtitle">Classic Dungeon Crawler</p>
+            <button id="start-btn">START</button>
+        </div>
+        <div id="damage-flash" class="hidden"></div>
+    </div>
+    <script src="js/config.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/memory.js"></script>
+    <script src="js/sprites.js"></script>
+    <script src="js/weapons.js"></script>
+    <script src="js/pickups.js"></script>
+    <script src="js/monsters.js"></script>
+    <script src="js/monster-ai.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/player-ai.js"></script>
+    <script src="js/raycaster.js"></script>
+    <script src="js/hud.js"></script>
+    <script src="js/input.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

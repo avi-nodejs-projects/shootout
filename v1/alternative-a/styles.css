@@ -1,0 +1,170 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    background: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+    font-family: 'Courier New', monospace;
+    color: #0f0;
+}
+
+#game-container {
+    position: relative;
+    width: 800px;
+    height: 500px;
+}
+
+#game-canvas {
+    width: 800px;
+    height: 500px;
+    image-rendering: pixelated;
+    display: block;
+}
+
+#hud {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+#hud-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 8px;
+}
+
+#minimap-canvas {
+    width: 120px;
+    height: 120px;
+    border: 1px solid #0f04;
+    background: #0008;
+    image-rendering: pixelated;
+}
+
+#messages {
+    text-align: right;
+    font-size: 12px;
+    text-shadow: 0 0 4px #0f0;
+    max-width: 250px;
+    min-height: 40px;
+}
+
+.message {
+    opacity: 1;
+    transition: opacity 0.5s;
+    margin-bottom: 2px;
+}
+
+.message.fading { opacity: 0; }
+
+#hud-bottom {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    background: linear-gradient(transparent, #000a);
+    font-size: 14px;
+}
+
+#health-display, #ammo-display, #weapon-display, #score-display {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.label { color: #0a0; font-size: 11px; }
+
+.bar-container {
+    width: 80px;
+    height: 10px;
+    background: #111;
+    border: 1px solid #0f04;
+}
+
+.bar {
+    height: 100%;
+    background: #0f0;
+    transition: width 0.3s;
+}
+
+#health-bar.critical { background: #f00; }
+#health-bar.warning { background: #ff0; }
+
+#weapon-name {
+    color: #ff0;
+    font-weight: bold;
+    text-shadow: 0 0 4px #ff0;
+}
+
+#ammo-display { color: #ff0; }
+
+#overlay {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: #000c;
+    z-index: 10;
+}
+
+#overlay.hidden { display: none; }
+
+#overlay-title {
+    font-size: 48px;
+    color: #0f0;
+    text-shadow: 0 0 20px #0f0, 0 0 40px #0a0;
+    margin-bottom: 8px;
+}
+
+#overlay-subtitle {
+    font-size: 16px;
+    color: #0a0;
+    margin-bottom: 30px;
+}
+
+#start-btn {
+    font-family: 'Courier New', monospace;
+    font-size: 20px;
+    color: #0f0;
+    background: transparent;
+    border: 2px solid #0f0;
+    padding: 10px 40px;
+    cursor: pointer;
+    pointer-events: all;
+    text-shadow: 0 0 8px #0f0;
+    box-shadow: 0 0 10px #0f04;
+}
+
+#start-btn:hover {
+    background: #0f02;
+    box-shadow: 0 0 20px #0f06;
+}
+
+#damage-flash {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: #f002;
+    pointer-events: none;
+    z-index: 5;
+}
+
+#damage-flash.hidden { display: none; }
+#damage-flash.active { animation: flash 0.2s ease-out; }
+
+@keyframes flash {
+    0% { background: #f004; }
+    100% { background: transparent; }
+}
