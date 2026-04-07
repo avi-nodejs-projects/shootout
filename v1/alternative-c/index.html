@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shootout — The Depths</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="game-container">
+        <canvas id="game-canvas"></canvas>
+        <div id="hud">
+            <div id="hud-top-left">
+                <div id="floor-display">FLOOR 1: THE ENTRANCE</div>
+            </div>
+            <div id="hud-top-right">
+                <div id="journal">
+                    <div id="journal-key">Key: <span id="key-status">--</span></div>
+                    <div id="journal-boss">Boss: <span id="boss-status">?</span></div>
+                    <div id="journal-rooms">Rooms: <span id="rooms-explored">0</span>/<span id="rooms-total">0</span></div>
+                </div>
+            </div>
+            <div id="message-bar"><span id="message-text"></span></div>
+            <div id="atmosphere-bar"><span id="atmosphere-text"></span></div>
+            <div id="hud-bottom">
+                <div class="hud-item">
+                    <span class="hud-label">HP</span>
+                    <div class="bar-outer"><div id="health-bar" class="bar-inner hp"></div></div>
+                    <span id="health-text" class="hud-val">100</span>
+                </div>
+                <div class="hud-item">
+                    <span id="weapon-name" class="hud-weapon">PISTOL</span>
+                    <span class="hud-ammo"><span id="ammo-clip">12</span>/<span id="ammo-reserve">∞</span></span>
+                </div>
+                <div class="hud-item">
+                    <span class="hud-label">Floor</span>
+                    <span id="floor-num" class="hud-val">1</span>
+                </div>
+                <div class="hud-item">
+                    <span class="hud-label">Score</span>
+                    <span id="score-val" class="hud-val">0</span>
+                </div>
+            </div>
+        </div>
+        <div id="overlay">
+            <h1 id="overlay-title">THE DEPTHS</h1>
+            <p id="overlay-subtitle">SHOOTOUT</p>
+            <button id="start-btn">DESCEND</button>
+        </div>
+        <div id="damage-flash"></div>
+        <div id="vignette"></div>
+    </div>
+    <script src="js/config.js"></script>
+    <script src="js/audio.js"></script>
+    <script src="js/map.js"></script>
+    <script src="js/memory.js"></script>
+    <script src="js/sprites.js"></script>
+    <script src="js/weapons.js"></script>
+    <script src="js/pickups.js"></script>
+    <script src="js/monsters.js"></script>
+    <script src="js/monster-ai.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/player-ai.js"></script>
+    <script src="js/raycaster.js"></script>
+    <script src="js/hud.js"></script>
+    <script src="js/input.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    background: #000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    overflow: hidden;
+    font-family: 'Courier New', monospace;
+    color: #ccaa77;
+}
+
+#game-container { position: relative; width: 800px; height: 500px; }
+
+#game-canvas {
+    width: 800px; height: 500px;
+    image-rendering: pixelated; display: block;
+}
+
+#hud {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+}
+
+#hud-top-left { position: absolute; top: 8px; left: 10px; }
+#floor-display {
+    font-size: 14px; color: #ffcc44;
+    text-shadow: 0 0 8px #ffcc4466;
+    letter-spacing: 2px;
+}
+
+#hud-top-right { position: absolute; top: 8px; right: 10px; }
+#journal {
+    font-size: 11px; text-align: right;
+    background: #00000088; padding: 6px 10px;
+    border: 1px solid #ffcc4422;
+}
+
+#journal div { margin-bottom: 2px; }
+#key-status { color: #ff4444; }
+#key-status.found { color: #44ff44; }
+#boss-status { color: #aaa; }
+
+#message-bar {
+    position: absolute; bottom: 50px; left: 50%;
+    transform: translateX(-50%); text-align: center;
+}
+
+#message-text {
+    font-size: 13px; color: #ffcc44;
+    text-shadow: 0 0 6px #ffcc4444;
+    transition: opacity 0.5s;
+}
+
+#atmosphere-bar {
+    position: absolute; bottom: 70px; left: 50%;
+    transform: translateX(-50%); text-align: center;
+}
+
+#atmosphere-text {
+    font-size: 11px; color: #88776644;
+    font-style: italic;
+    transition: opacity 1s;
+}
+
+#hud-bottom {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 8px 14px;
+    background: linear-gradient(transparent, #000a);
+}
+
+.hud-item { display: flex; align-items: center; gap: 6px; }
+.hud-label { font-size: 10px; color: #88776666; }
+.bar-outer { width: 80px; height: 8px; background: #111; border: 1px solid #ffcc4422; }
+.bar-inner { height: 100%; transition: width 0.3s; }
+.bar-inner.hp { background: linear-gradient(90deg, #44cc44, #22aa22); }
+.bar-inner.hp.warning { background: linear-gradient(90deg, #ccaa00, #aa8800); }
+.bar-inner.hp.critical { background: #cc2200; animation: pulse 0.5s infinite; }
+.hud-val { font-size: 12px; }
+.hud-weapon { font-size: 14px; color: #ffcc44; font-weight: bold; }
+.hud-ammo { font-size: 13px; color: #ccaa77; }
+
+#overlay {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    display: flex; flex-direction: column; justify-content: center; align-items: center;
+    background: #000e; z-index: 10;
+}
+#overlay.hidden { display: none; }
+#overlay-title {
+    font-size: 52px; color: #ffcc44;
+    text-shadow: 0 0 30px #ffcc44, 0 0 60px #ff880066;
+    letter-spacing: 8px;
+}
+#overlay-subtitle {
+    font-size: 16px; color: #887755; margin-bottom: 30px; letter-spacing: 6px;
+}
+#start-btn {
+    font-family: 'Courier New', monospace; font-size: 18px;
+    color: #ffcc44; background: transparent;
+    border: 2px solid #ffcc44; padding: 12px 40px;
+    cursor: pointer; pointer-events: all;
+    text-shadow: 0 0 6px #ffcc44; letter-spacing: 4px;
+}
+#start-btn:hover { background: #ffcc4410; box-shadow: 0 0 15px #ffcc4433; }
+
+#damage-flash {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none; z-index: 5; opacity: 0; transition: opacity 0.15s;
+}
+#damage-flash.active {
+    background: radial-gradient(ellipse at center, transparent 30%, #ff000044 100%);
+    opacity: 1;
+}
+
+#vignette {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse at center, transparent 50%, #00000088 100%);
+    z-index: 2;
+}
+
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
