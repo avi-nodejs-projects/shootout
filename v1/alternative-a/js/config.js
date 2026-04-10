@@ -1,8 +1,8 @@
 // Game configuration constants
 const CONFIG = {
     // Screen
-    SCREEN_W: 640,
-    SCREEN_H: 400,
+    SCREEN_W: 800,
+    SCREEN_H: 500,
 
     // Map
     MAP_SIZE: 31,

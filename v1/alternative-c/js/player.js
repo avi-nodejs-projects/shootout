@@ -18,9 +18,19 @@ const Player = (() => {
         const cos = Math.cos(s.angle), sin = Math.sin(s.angle);
         const dx = cos * forward * spd + Math.cos(s.angle + Math.PI / 2) * strafe * spd;
         const dy = sin * forward * spd + Math.sin(s.angle + Math.PI / 2) * strafe * spd;
-        const nx = s.x + dx, ny = s.y + dy;
-        if (!GameMap.isWall(nx + s.radius * Math.sign(dx), s.y) && !GameMap.isWall(nx - s.radius * Math.sign(dx), s.y)) s.x = nx;
-        if (!GameMap.isWall(s.x, ny + s.radius * Math.sign(dy)) && !GameMap.isWall(s.x, ny - s.radius * Math.sign(dy))) s.y = ny;
+
+        // Proper radius-based collision with wall sliding
+        const r = s.radius;
+        const nx = s.x + dx;
+        if (!GameMap.isWall(nx - r, s.y - r) && !GameMap.isWall(nx + r, s.y - r) &&
+            !GameMap.isWall(nx - r, s.y + r) && !GameMap.isWall(nx + r, s.y + r)) {
+            s.x = nx;
+        }
+        const ny = s.y + dy;
+        if (!GameMap.isWall(s.x - r, ny - r) && !GameMap.isWall(s.x + r, ny - r) &&
+            !GameMap.isWall(s.x - r, ny + r) && !GameMap.isWall(s.x + r, ny + r)) {
+            s.y = ny;
+        }
 
         if (Math.abs(forward) > 0 || Math.abs(strafe) > 0) {
             s.footstepTimer += dt;

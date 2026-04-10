@@ -1,12 +1,27 @@
 // Methodical explorer AI with key/boss-seeking logic
 const PlayerAI = (() => {
-    let enabled = true, decisionTimer = 0, currentAction = 'EXPLORE';
-    let targetAngle = 0, pathTarget = null, exploredRooms = new Set();
+    let enabled = true;
+    let decisionTimer = 0;
+    let currentAction = 'EXPLORE';
+    let pathTarget = null;
+    let exploredRooms = new Set();
     let lastActionSwitch = 0;
 
+    // Stuck detection
+    let lastPosX = 0, lastPosY = 0;
+    let stuckTimer = 0;
+    let unstuckDir = 1;
+
     function reset() {
-        enabled = true; decisionTimer = 0; currentAction = 'EXPLORE';
-        pathTarget = null; exploredRooms = new Set(); lastActionSwitch = 0;
+        enabled = true;
+        decisionTimer = 0;
+        currentAction = 'EXPLORE';
+        pathTarget = null;
+        exploredRooms = new Set();
+        lastActionSwitch = 0;
+        stuckTimer = 0;
+        lastPosX = 0;
+        lastPosY = 0;
     }
 
     function setEnabled(v) { enabled = v; }
@@ -16,8 +31,18 @@ const PlayerAI = (() => {
         if (!enabled) return;
         const p = Player.getState();
         if (!p.alive) return;
+
+        const moved = Math.sqrt((p.x - lastPosX) ** 2 + (p.y - lastPosY) ** 2);
+        if (moved < 0.01) stuckTimer += dt;
+        else stuckTimer = 0;
+        lastPosX = p.x;
+        lastPosY = p.y;
+
         decisionTimer += dt;
-        if (decisionTimer >= CONFIG.AI_DECISION_INTERVAL) { decisionTimer = 0; decide(p); }
+        if (decisionTimer >= CONFIG.AI_DECISION_INTERVAL) {
+            decisionTimer = 0;
+            decide(p);
+        }
         execute(p, dt);
     }
 
@@ -26,64 +51,58 @@ const PlayerAI = (() => {
         const roomId = GameMap.getRoomAt(p.x, p.y);
         if (roomId >= 0) exploredRooms.add(roomId);
 
-        // 1. FLEE — very low HP, seek safe room
+        // 1. FLEE — very low HP
         if (p.health < 15) {
             const hp = findNearestPickup('health');
-            if (hp) {
-                setTarget('SEEK_HEALTH', hp.x, hp.y);
-                return;
-            }
+            if (hp) { currentAction = 'SEEK'; pathTarget = { x: hp.x, y: hp.y }; return; }
         }
 
-        // 2. HEAL — moderate HP, safe room nearby
+        // 2. HEAL — moderate HP
         if (p.health < 50) {
             const hp = findNearestPickup('health');
             if (hp) {
-                const hDist = Math.sqrt((hp.x - p.x) ** 2 + (hp.y - p.y) ** 2);
-                if (hDist < 15) { setTarget('SEEK_HEALTH', hp.x, hp.y); return; }
+                const d = Math.sqrt((hp.x - p.x) ** 2 + (hp.y - p.y) ** 2);
+                if (d < 15) { currentAction = 'SEEK'; pathTarget = { x: hp.x, y: hp.y }; return; }
             }
         }
 
         // 3. COMBAT
         const enemy = findNearestVisibleMonster(p);
         if (enemy) {
-            targetAngle = Math.atan2(enemy.y - p.y, enemy.x - p.x);
             currentAction = enemy.boss ? 'BOSS_FIGHT' : 'COMBAT';
+            pathTarget = { x: enemy.x, y: enemy.y };
             return;
         }
 
         // 4. RELOAD
         const w = Weapons.current();
         if (w && w.clip === 0 && !w.reloading && (w.reserve > 0 || w.infiniteAmmo)) {
-            currentAction = 'RELOAD';
             Weapons.startReload(now);
             Audio.playReload();
-            return;
         }
 
-        // 5. SEEK KEY (if not found)
+        // 5. SEEK KEY
         if (!Memory.hasKey()) {
             const keyPickup = findNearestPickup('key');
-            if (keyPickup) { setTarget('SEEK_KEY', keyPickup.x, keyPickup.y); return; }
-            // Explore to find key
+            if (keyPickup) { currentAction = 'SEEK'; pathTarget = { x: keyPickup.x, y: keyPickup.y }; return; }
         }
 
-        // 6. SEEK BOSS (key found, boss alive)
+        // 6. SEEK BOSS
         if (Memory.hasKey() && Monsters.isBossAlive()) {
             const bossRoom = GameMap.getRooms()[GameMap.getBossRoomIdx()];
-            if (bossRoom) { setTarget('SEEK_BOSS', bossRoom.cx + 0.5, bossRoom.cy + 0.5); return; }
+            if (bossRoom) { currentAction = 'SEEK'; pathTarget = { x: bossRoom.cx + 0.5, y: bossRoom.cy + 0.5 }; return; }
         }
 
-        // 7. SEEK ELEVATOR (boss dead)
+        // 7. SEEK ELEVATOR
         if (Memory.isBossDefeated()) {
             const elev = GameMap.getElevatorPos();
-            if (elev) { setTarget('SEEK_ELEVATOR', elev.x + 0.5, elev.y + 0.5); return; }
+            if (elev) { currentAction = 'SEEK'; pathTarget = { x: elev.x + 0.5, y: elev.y + 0.5 }; return; }
         }
 
         // 8. AMMO CHECK
         if (w && !w.infiniteAmmo && w.reserve < w.clipSize) {
             const ammo = findNearestPickup('ammo');
-            if (ammo) { setTarget('SEEK_AMMO', ammo.x, ammo.y); return; }
+            if (ammo) { currentAction = 'SEEK'; pathTarget = { x: ammo.x, y: ammo.y }; return; }
         }
 
         // 9. EXPLORE
@@ -98,91 +117,111 @@ const PlayerAI = (() => {
         }
         if (best) {
             pathTarget = { x: best.cx + 0.5, y: best.cy + 0.5 };
-            targetAngle = Math.atan2(best.cy - p.y, best.cx - p.x);
-        } else if (now - lastActionSwitch > 4) {
+        } else if (!pathTarget || now - lastActionSwitch > 5) {
             lastActionSwitch = now;
             const r = rooms[Math.floor(Math.random() * rooms.length)];
             pathTarget = { x: r.cx + 0.5, y: r.cy + 0.5 };
-            targetAngle = Math.atan2(r.cy - p.y, r.cx - p.x);
         }
-    }
-
-    function setTarget(action, x, y) {
-        currentAction = action;
-        pathTarget = { x, y };
-        targetAngle = Math.atan2(y - Player.getState().y, x - Player.getState().x);
     }
 
     function execute(p, dt) {
         const now = performance.now() / 1000;
 
-        // Turn
-        let diff = targetAngle - p.angle;
-        while (diff > Math.PI) diff -= Math.PI * 2;
-        while (diff < -Math.PI) diff += Math.PI * 2;
-        if (Math.abs(diff) > 0.05) Player.turn(Math.sign(diff) * Math.min(1, Math.abs(diff) * 3), dt);
+        // Combat
+        if (currentAction === 'COMBAT' || currentAction === 'BOSS_FIGHT') {
+            const enemy = findNearestVisibleMonster(p);
+            if (enemy) {
+                const enemyAngle = Math.atan2(enemy.y - p.y, enemy.x - p.x);
+                turnToward(p, enemyAngle, dt);
+                const aligned = Math.abs(angleDiff(enemyAngle, p.angle)) < 0.2;
+                const dist = Math.sqrt((enemy.x - p.x) ** 2 + (enemy.y - p.y) ** 2);
 
-        switch (currentAction) {
-            case 'COMBAT': {
-                const e = findNearestVisibleMonster(p);
-                if (e) {
-                    const d = Math.sqrt((e.x - p.x) ** 2 + (e.y - p.y) ** 2);
-                    if (d < 2) Player.move(-0.5, 0, dt);
-                    else if (d > 6) Player.move(0.5, 0, dt);
-                    Player.move(0, Math.sin(now * 2) * 0.3, dt);
-                    Player.shoot(now);
-                }
-                break;
-            }
-            case 'BOSS_FIGHT': {
-                const e = findNearestVisibleMonster(p);
-                if (e) {
-                    const d = Math.sqrt((e.x - p.x) ** 2 + (e.y - p.y) ** 2);
-                    // Kite: keep 5-7 tile distance
-                    if (d < 4) Player.move(-1, 0, dt);
-                    else if (d > 8) Player.move(0.5, 0, dt);
-                    // Circle strafe
+                if (currentAction === 'BOSS_FIGHT') {
+                    if (dist < 4) Player.move(-1, 0, dt);
+                    else if (dist > 8) Player.move(0.5, 0, dt);
                     Player.move(0, Math.sin(now * 1.5) * 0.6, dt);
-                    Player.shoot(now);
-                    // Retreat to heal if low
-                    if (p.health < 30) {
-                        Player.move(-1, 0, dt);
-                    }
+                    if (p.health < 30) Player.move(-1, 0, dt);
+                } else {
+                    if (dist < 2.5) Player.move(-0.6, 0, dt);
+                    else if (dist > 6) Player.move(0.5, 0, dt);
+                    Player.move(0, Math.sin(now * 2) * 0.3, dt);
                 }
-                break;
+                if (aligned) Player.shoot(now);
+                return;
             }
-            case 'SEEK_HEALTH': case 'SEEK_KEY': case 'SEEK_AMMO':
-            case 'SEEK_BOSS': case 'SEEK_ELEVATOR': case 'EXPLORE':
-                navigateToTarget(p, dt);
-                break;
-            case 'RELOAD':
-                break;
+        }
+
+        // Navigation
+        if (pathTarget) {
+            const dx = pathTarget.x - p.x;
+            const dy = pathTarget.y - p.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+
+            if (dist < 0.8) {
+                pathTarget = null;
+                return;
+            }
+
+            const toTarget = Math.atan2(dy, dx);
+
+            // Stuck detection
+            if (stuckTimer > 0.3) {
+                unstickManeuver(p, toTarget, dt);
+                if (stuckTimer > 1.5) {
+                    stuckTimer = 0;
+                    unstuckDir = -unstuckDir;
+                    pathTarget = null;
+                    decisionTimer = CONFIG.AI_DECISION_INTERVAL;
+                }
+                return;
+            }
+
+            turnToward(p, toTarget, dt);
+            const diff = Math.abs(angleDiff(toTarget, p.angle));
+
+            // Wall check
+            const lookX = p.x + Math.cos(p.angle) * 0.7;
+            const lookY = p.y + Math.sin(p.angle) * 0.7;
+            const wallAhead = GameMap.isWall(lookX, lookY);
+
+            if (wallAhead) {
+                const leftA = p.angle - Math.PI / 2;
+                const rightA = p.angle + Math.PI / 2;
+                const leftClear = !GameMap.isWall(p.x + Math.cos(leftA) * 0.8, p.y + Math.sin(leftA) * 0.8);
+                const rightClear = !GameMap.isWall(p.x + Math.cos(rightA) * 0.8, p.y + Math.sin(rightA) * 0.8);
+
+                if (rightClear && !leftClear) Player.turn(1.5, dt);
+                else if (leftClear && !rightClear) Player.turn(-1.5, dt);
+                else if (rightClear) Player.turn(unstuckDir, dt);
+                else Player.turn(-unstuckDir, dt);
+                Player.move(0.3, 0, dt);
+            } else if (diff < 0.6) {
+                Player.move(1, 0, dt);
+            } else {
+                Player.move(0.2, 0, dt);
+            }
         }
     }
 
-    function navigateToTarget(p, dt) {
-        if (!pathTarget) return;
-        const dx = pathTarget.x - p.x, dy = pathTarget.y - p.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
+    function unstickManeuver(p, toTarget, dt) {
+        Player.turn(unstuckDir * 2, dt);
+        Player.move(0.5, 0, dt);
+        Player.move(0, 0.8 * unstuckDir, dt);
+        Player.move(-0.3, 0, dt);
+    }
 
-        if (dist > 0.8) {
-            let diff = targetAngle - p.angle;
-            while (diff > Math.PI) diff -= Math.PI * 2;
-            while (diff < -Math.PI) diff += Math.PI * 2;
+    function turnToward(p, targetAngle, dt) {
+        let diff = angleDiff(targetAngle, p.angle);
+        if (Math.abs(diff) > 0.05) {
+            Player.turn(Math.sign(diff) * Math.min(1, Math.abs(diff) * 4), dt);
+        }
+    }
 
-            if (Math.abs(diff) < 0.4) {
-                const ahead = !GameMap.isWall(p.x + Math.cos(p.angle) * 1.2, p.y + Math.sin(p.angle) * 1.2);
-                if (ahead) Player.move(1, 0, dt);
-                else {
-                    const rAngle = p.angle + Math.PI / 2;
-                    if (!GameMap.isWall(p.x + Math.cos(rAngle), p.y + Math.sin(rAngle))) {
-                        Player.turn(0.5, dt); Player.move(0.5, 0.5, dt);
-                    } else {
-                        Player.turn(-0.5, dt); Player.move(0.5, -0.5, dt);
-                    }
-                }
-            }
-        } else pathTarget = null;
+    function angleDiff(a, b) {
+        let d = a - b;
+        while (d > Math.PI) d -= Math.PI * 2;
+        while (d < -Math.PI) d += Math.PI * 2;
+        return d;
     }
 
     function findNearestVisibleMonster(p) {

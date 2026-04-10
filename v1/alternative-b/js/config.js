@@ -1,6 +1,6 @@
 const CONFIG = {
-    SCREEN_W: 640,
-    SCREEN_H: 400,
+    SCREEN_W: 800,
+    SCREEN_H: 500,
 
     MAP_SIZE: 48,
     TILE: { WALL: 1, FLOOR: 0, OBSTACLE: 2 },
@@ -57,5 +57,5 @@ const CONFIG = {
 
     MINIMAP_SIZE: 150,
     MEMORY_SIZE: 8,
-    AI_DECISION_INTERVAL: 0.5,
+    AI_DECISION_INTERVAL: 0.2,
 };

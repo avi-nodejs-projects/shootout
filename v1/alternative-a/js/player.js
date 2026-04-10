@@ -30,17 +30,17 @@ const Player = (() => {
         let dx = cos * forward * speed + Math.cos(state.angle + Math.PI / 2) * strafe * speed;
         let dy = sin * forward * speed + Math.sin(state.angle + Math.PI / 2) * strafe * speed;
 
-        // Collision detection with sliding
-        const newX = state.x + dx;
-        const newY = state.y + dy;
-
-        if (!GameMap.isWall(newX + state.radius * Math.sign(dx), state.y) &&
-            !GameMap.isWall(newX - state.radius * Math.sign(dx), state.y)) {
-            state.x = newX;
+        // Proper collision with wall sliding: check each axis independently using player radius
+        const r = state.radius;
+        const nx = state.x + dx;
+        if (!GameMap.isWall(nx - r, state.y - r) && !GameMap.isWall(nx + r, state.y - r) &&
+            !GameMap.isWall(nx - r, state.y + r) && !GameMap.isWall(nx + r, state.y + r)) {
+            state.x = nx;
         }
-        if (!GameMap.isWall(state.x, newY + state.radius * Math.sign(dy)) &&
-            !GameMap.isWall(state.x, newY - state.radius * Math.sign(dy))) {
-            state.y = newY;
+        const ny = state.y + dy;
+        if (!GameMap.isWall(state.x - r, ny - r) && !GameMap.isWall(state.x + r, ny - r) &&
+            !GameMap.isWall(state.x - r, ny + r) && !GameMap.isWall(state.x + r, ny + r)) {
+            state.y = ny;
         }
 
         // Footsteps
